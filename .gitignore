@@ -1,0 +1,7 @@
+.env
+.env.testing
+
+/vendor/
+
+# Fichiers temporaires Windows
+Thumbs.db

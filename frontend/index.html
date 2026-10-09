@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f7f8fa">
+    <meta name="description" content="Interface de suivi personnel des comptes, revenus, dépenses et budgets.">
+    <title>Finances — Tableau de bord</title>
+    <link rel="stylesheet" href="assets/css/app.css">
+    <script defer src="assets/js/config.js"></script>
+    <script defer src="assets/js/api.js"></script>
+    <script defer src="assets/js/app.js"></script>
+</head>
+<body>
+    <div class="app-shell">
+        <aside class="sidebar" aria-label="Navigation principale">
+            <a class="brand" href="#dashboard" data-view="dashboard" aria-label="Personal Finance Tracker, accueil">
+                <span class="brand-mark" aria-hidden="true">PF</span>
+                <span class="brand-copy"><strong>Finances</strong><small>Personal tracker</small></span>
+            </a>
+
+            <p class="nav-caption">ESPACE PERSONNEL</p>
+            <nav class="primary-nav">
+                <button class="nav-link is-active" type="button" data-view="dashboard"><span class="nav-icon" aria-hidden="true">⌂</span>Tableau de bord</button>
+                <button class="nav-link" type="button" data-view="transactions"><span class="nav-icon" aria-hidden="true">↕</span>Transactions</button>
+                <button class="nav-link" type="button" data-view="accounts"><span class="nav-icon" aria-hidden="true">▣</span>Comptes</button>
+                <button class="nav-link" type="button" data-view="categories"><span class="nav-icon" aria-hidden="true">◷</span>Catégories</button>
+                <button class="nav-link" type="button" data-view="summary"><span class="nav-icon" aria-hidden="true">▤</span>Résumé mensuel</button>
+            </nav>
+        </aside>
+
+        <div class="workspace">
+            <header class="topbar">
+                <div class="breadcrumb"><span class="breadcrumb-dot" aria-hidden="true"></span><span id="topbar-section">Vue d’ensemble</span></div>
+            </header>
+
+            <main id="main-content" class="main-content" tabindex="-1" aria-live="polite">
+                <div class="loading-panel"><span class="spinner" aria-hidden="true"></span><p>Chargement de vos données…</p></div>
+            </main>
+
+            <footer class="mobile-footer">Personal Finance Tracker</footer>
+        </div>
+    </div>
+
+    <nav class="mobile-nav" aria-label="Navigation mobile">
+        <button class="mobile-nav-link is-active" type="button" data-view="dashboard"><span aria-hidden="true">⌂</span><small>Accueil</small></button>
+        <button class="mobile-nav-link" type="button" data-view="transactions"><span aria-hidden="true">↕</span><small>Activité</small></button>
+        <button class="mobile-nav-link" type="button" data-view="accounts"><span aria-hidden="true">▣</span><small>Comptes</small></button>
+        <button class="mobile-nav-link" type="button" data-view="categories"><span aria-hidden="true">◷</span><small>Budgets</small></button>
+        <button class="mobile-nav-link" type="button" data-view="summary"><span aria-hidden="true">▤</span><small>Résumé</small></button>
+    </nav>
+
+    <div class="toast-region" id="toast-region" aria-live="polite" aria-atomic="true"></div>
+    <dialog class="app-dialog" id="app-dialog" aria-labelledby="dialog-title"></dialog>
+</body>
+</html>
