@@ -28,16 +28,16 @@
                 try {
                     data = JSON.parse(raw);
                 } catch {
-                    throw new Error('Le serveur a renvoyé une réponse illisible.');
+                    throw new Error('The server returned an unreadable response.');
                 }
             }
 
             if (!response.ok) {
                 const message = data && typeof data === 'object'
                     ? (response.status >= 500
-                        ? 'Le serveur a rencontré un problème. Réessaie, puis vérifie les journaux PHP si cela continue.'
-                        : (data.error || data.message || 'La requête a échoué.'))
-                    : 'La requête a échoué.';
+                        ? 'The server encountered a problem. Try again, and check the PHP logs if it persists.'
+                        : (data.error || data.message || 'The request failed.'))
+                    : 'The request failed.';
                 const error = new Error(message);
                 error.status = response.status;
                 error.payload = data;
@@ -47,10 +47,10 @@
             return data;
         } catch (error) {
             if (error.name === 'AbortError') {
-                throw new Error('La requête prend trop de temps. Réessaie dans un instant.');
+                throw new Error('The request is taking too long. Try again in a moment.');
             }
             if (error instanceof TypeError) {
-                throw new Error('Impossible de joindre l’API. Vérifie que WAMP est démarré et que le chemin du projet est correct.');
+                throw new Error('Unable to reach the API. Check that WAMP is running and that the project path is correct.');
             }
             throw error;
         } finally {

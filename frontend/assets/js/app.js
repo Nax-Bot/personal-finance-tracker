@@ -21,11 +21,11 @@
     };
 
     const titles = {
-        dashboard: 'Vue d’ensemble',
+        dashboard: 'Overview',
         transactions: 'Transactions',
-        accounts: 'Comptes',
-        categories: 'Catégories',
-        summary: 'Résumé mensuel'
+        accounts: 'Accounts',
+        categories: 'Categories',
+        summary: 'Monthly summary'
     };
 
     function node(tag, className, text) {
@@ -51,33 +51,33 @@
     function formatMoney(value) {
         const amount = Number(value);
         const safeAmount = Number.isFinite(amount) ? amount : 0;
-        return `${new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 2 }).format(safeAmount)} ${currencyLabel}`;
+        return `${new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(safeAmount)} ${currencyLabel}`;
     }
 
     function monthLabel(month) {
         const date = new Date(`${month}-01T12:00:00`);
-        return new Intl.DateTimeFormat('fr-FR', { month: 'long', year: 'numeric' }).format(date);
+        return new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric' }).format(date);
     }
 
     function dateLabel(value) {
-        if (!value) return 'Date inconnue';
+        if (!value) return 'Unknown date';
         const date = new Date(`${String(value).slice(0, 10)}T12:00:00`);
-        return Number.isNaN(date.getTime()) ? String(value) : new Intl.DateTimeFormat('fr-FR', { dateStyle: 'medium' }).format(date);
+        return Number.isNaN(date.getTime()) ? String(value) : new Intl.DateTimeFormat('en-US', { dateStyle: 'medium' }).format(date);
     }
 
     function accountName(id) {
-        return state.accounts.find((account) => Number(account.id) === Number(id))?.name || 'Compte';
+        return state.accounts.find((account) => Number(account.id) === Number(id))?.name || 'Account';
     }
 
     function categoryName(id) {
-        return state.categories.find((category) => Number(category.id) === Number(id))?.name || 'Catégorie';
+        return state.categories.find((category) => Number(category.id) === Number(id))?.name || 'Category';
     }
 
     function monthInput(onChange) {
         const input = node('input', 'month-control');
         input.type = 'month';
         input.value = state.month;
-        input.setAttribute('aria-label', 'Choisir le mois');
+        input.setAttribute('aria-label', 'Choose month');
         input.addEventListener('change', async () => {
             if (!input.value) return;
             state.month = input.value;
@@ -140,23 +140,23 @@
         const limit = warning.monthly_limit ?? warning.monthy_limit;
         const exceeded = warning.exceeded_by;
         const message = Number.isFinite(Number(exceeded))
-            ? `Budget dépassé : la limite de ${formatMoney(limit)} est dépassée de ${formatMoney(exceeded)}. La transaction a bien été enregistrée.`
-            : `Le budget de cette catégorie est dépassé. La transaction a bien été enregistrée.`;
+            ? `Budget exceeded: the limit of ${formatMoney(limit)} was exceeded by ${formatMoney(exceeded)}. The transaction was saved.`
+            : `This category’s budget has been exceeded. The transaction was saved.`;
         showToast(message, 'warning');
     }
 
     function showLoading() {
         main.replaceChildren();
         const loading = node('div', 'loading-panel');
-        append(loading, node('span', 'spinner'), node('p', '', 'Chargement de vos données…'));
+        append(loading, node('span', 'spinner'), node('p', '', 'Loading your data…'));
         main.append(loading);
     }
 
     function showLoadError(message) {
         main.replaceChildren();
         const error = node('div', 'error-panel panel');
-        append(error, node('span', 'empty-icon', '!'), node('h2', '', 'Les données ne sont pas disponibles'), node('p', '', message));
-        error.append(makeButton('Réessayer', 'button-primary', refreshAll));
+        append(error, node('span', 'empty-icon', '!'), node('h2', '', 'Data is not available'), node('p', '', message));
+        error.append(makeButton('Try again', 'button-primary', refreshAll));
         main.append(error);
     }
 
@@ -224,7 +224,7 @@
         const row = node('div', 'budget-item');
         const progress = budgetProgress(category, spent);
         if (!progress) {
-            append(row, node('div', 'budget-line', category.name), node('p', 'budget-unlimited', `Dépenses : ${formatMoney(spent)} · Aucune limite mensuelle`));
+            append(row, node('div', 'budget-line', category.name), node('p', 'budget-unlimited', `Spending: ${formatMoney(spent)} · No monthly limit`));
             return row;
         }
 
@@ -241,9 +241,9 @@
         track.append(fill);
         const foot = node('div', `budget-foot ${progress.over ? 'is-over' : ''}`);
         const status = progress.over
-            ? `Dépassement : ${formatMoney(progress.spent - progress.limit)}`
-            : `${Math.round(progress.percent)} % utilisé`;
-        append(foot, node('span', '', status), node('span', '', progress.over ? 'À surveiller' : 'Ce mois'));
+            ? `Over by: ${formatMoney(progress.spent - progress.limit)}`
+            : `${Math.round(progress.percent)} % used`;
+        append(foot, node('span', '', status), node('span', '', progress.over ? 'Needs attention' : 'This month'));
         append(row, top, track, foot);
         return row;
     }
@@ -260,8 +260,8 @@
 
         if (withActions) {
             const actions = node('div', 'row-actions');
-            actions.append(makeButton('Modifier', 'button-secondary', () => openTransactionDialog(transaction), 'Modifier cette transaction'));
-            actions.append(makeButton('Supprimer', 'button-danger', () => removeTransaction(transaction), 'Supprimer cette transaction'));
+            actions.append(makeButton('Edit', 'button-secondary', () => openTransactionDialog(transaction), 'Edit this transaction'));
+            actions.append(makeButton('Delete', 'button-danger', () => removeTransaction(transaction), 'Delete this transaction'));
             const amountAndActions = node('div');
             append(amountAndActions, amount, actions);
             append(row, symbol, text, amountAndActions);
@@ -272,19 +272,19 @@
     }
 
     function renderDashboard() {
-        const actions = [monthInput(), makeButton('＋ Nouvelle transaction', 'button-primary', () => openTransactionDialog())];
+        const actions = [monthInput(), makeButton('＋ New transaction', 'button-primary', () => openTransactionDialog())];
         const content = node('div');
-        content.append(heading('Bonjour, bienvenue', `Voici un aperçu de vos finances pour ${monthLabel(state.month)}.`, actions, 'VOTRE ESPACE FINANCIER'));
+        content.append(heading('Hello, welcome', `Here is an overview of your finances for ${monthLabel(state.month)}.`, actions, 'YOUR FINANCIAL SPACE'));
 
         const totalBalance = state.accounts.reduce((total, account) => total + (Number(account.balance) || 0), 0);
         const summary = state.summary || {};
         const stats = node('section', 'stats-grid');
-        stats.setAttribute('aria-label', 'Indicateurs financiers du mois');
+        stats.setAttribute('aria-label', 'Monthly financial indicators');
         append(stats,
-            statCard('Solde des comptes', formatMoney(totalBalance), `${state.accounts.length} compte${state.accounts.length > 1 ? 's' : ''}`, '◉'),
-            statCard('Revenus du mois', formatMoney(summary.total_income), monthLabel(state.month), '↙', 'tone-positive'),
-            statCard('Dépenses du mois', formatMoney(summary.total_expense), monthLabel(state.month), '↗', 'tone-negative'),
-            statCard('Solde net du mois', formatMoney(summary.net_balance), 'Revenus moins dépenses', '＝', Number(summary.net_balance) < 0 ? 'tone-negative' : 'tone-positive')
+            statCard('Account balance', formatMoney(totalBalance), `${state.accounts.length} account${state.accounts.length > 1 ? 's' : ''}`, '◉'),
+            statCard('Income this month', formatMoney(summary.total_income), monthLabel(state.month), '↙', 'tone-positive'),
+            statCard('Expenses this month', formatMoney(summary.total_expense), monthLabel(state.month), '↗', 'tone-negative'),
+            statCard('Net balance this month', formatMoney(summary.net_balance), 'Income minus expenses', '＝', Number(summary.net_balance) < 0 ? 'tone-negative' : 'tone-positive')
         );
         content.append(stats);
 
@@ -297,17 +297,17 @@
         if (budgetCategories.length) {
             budgetCategories.forEach((category) => budgetList.append(makeBudgetItem(category, expenses.get(Number(category.id)) || 0)));
         } else {
-            budgetList.append(emptyState('Pas encore de budget', 'Créez une catégorie pour commencer à suivre les dépenses.', 'Créer une catégorie', () => openCategoryDialog()));
+            budgetList.append(emptyState('No budgets yet', 'Create a category to start tracking expenses.', 'Create a category', () => openCategoryDialog()));
         }
-        mainColumn.append(panel('Suivi des budgets', 'Dépenses comparées aux limites mensuelles', budgetList, makeButton('Gérer', 'button-quiet', () => switchView('categories'))));
+        mainColumn.append(panel('Budget tracking', 'Expenses compared to monthly limits', budgetList, makeButton('Manage', 'button-quiet', () => switchView('categories'))));
 
         const recentList = node('div', 'list-stack');
         if (state.transactions.length) {
             state.transactions.slice(0, 5).forEach((transaction) => recentList.append(transactionRow(transaction, false)));
         } else {
-            recentList.append(emptyState('Aucune transaction ce mois-ci', 'Ajoutez une transaction pour voir votre activité ici.', 'Ajouter une transaction', () => openTransactionDialog()));
+            recentList.append(emptyState('No transactions this month', 'Add a transaction to see your activity here.', 'Add a transaction', () => openTransactionDialog()));
         }
-        sideColumn.append(panel('Activité récente', monthLabel(state.month), recentList, makeButton('Tout voir', 'button-quiet', () => switchView('transactions'))));
+        sideColumn.append(panel('Recent activity', monthLabel(state.month), recentList, makeButton('View all', 'button-quiet', () => switchView('transactions'))));
 
         const categoriesList = node('div', 'budget-list');
         const categoryExpenses = (summary.expenses_by_category || []).slice(0, 5);
@@ -325,9 +325,9 @@
                 categoriesList.append(wrap);
             });
         } else {
-            categoriesList.append(node('p', 'panel-description', 'Les dépenses par catégorie apparaîtront ici après votre première transaction.'));
+            categoriesList.append(node('p', 'panel-description', 'Expenses by category will appear here after your first transaction.'));
         }
-        sideColumn.append(panel('Dépenses par catégorie', 'Répartition du mois sélectionné', categoriesList));
+        sideColumn.append(panel('Expenses by category', 'Breakdown for the selected month', categoriesList));
         append(dashboardGrid, mainColumn, sideColumn);
         content.append(dashboardGrid);
         main.replaceChildren(content);
@@ -335,18 +335,18 @@
 
     function renderAccounts() {
         const content = node('div');
-        content.append(heading('Vos comptes', 'Consultez les soldes et gérez vos comptes financiers.', [makeButton('＋ Ajouter un compte', 'button-primary', () => openAccountDialog())]));
+        content.append(heading('Your accounts', 'View balances and manage your financial accounts.', [makeButton('＋ Add an account', 'button-primary', () => openAccountDialog())]));
         const grid = node('div', 'collection-grid');
         if (!state.accounts.length) {
-            grid.append(emptyState('Aucun compte pour le moment', 'Ajoutez un compte pour suivre votre solde et enregistrer des transactions.', 'Créer un compte', () => openAccountDialog()));
+            grid.append(emptyState('No accounts yet', 'Add an account to track your balance and record transactions.', 'Create an account', () => openAccountDialog()));
         } else {
             state.accounts.forEach((account) => {
                 const card = node('article', 'account-card');
                 const kind = node('span', 'account-kind', accountTypeLabel(account.type));
                 append(card, kind, node('h2', 'card-title', account.name), node('p', 'card-balance', formatMoney(account.balance)));
                 const actions = node('div', 'card-actions');
-                actions.append(makeButton('Modifier', 'button-secondary button-small', () => openAccountDialog(account)));
-                actions.append(makeButton('Supprimer', 'button-danger button-small', () => removeAccount(account)));
+                actions.append(makeButton('Edit', 'button-secondary button-small', () => openAccountDialog(account)));
+                actions.append(makeButton('Delete', 'button-danger button-small', () => removeAccount(account)));
                 card.append(actions);
                 grid.append(card);
             });
@@ -356,34 +356,34 @@
     }
 
     function accountTypeLabel(type) {
-        return ({ checking: 'Compte courant', savings: 'Épargne', cash: 'Espèces' })[type] || String(type || 'Compte');
+        return ({ checking: 'Checking account', savings: 'Savings', cash: 'Cash' })[type] || String(type || 'Account');
     }
 
     function renderCategories() {
         const content = node('div');
-        content.append(heading('Catégories & budgets', 'Organisez vos dépenses et gardez un œil sur vos limites.', [monthInput(), makeButton('＋ Ajouter une catégorie', 'button-primary', () => openCategoryDialog())]));
+        content.append(heading('Categories & budgets', 'Organize your expenses and keep an eye on your limits.', [monthInput(), makeButton('＋ Add a category', 'button-primary', () => openCategoryDialog())]));
         const grid = node('div', 'collection-grid');
         const expenses = monthlyExpenses();
         if (!state.categories.length) {
-            grid.append(emptyState('Aucune catégorie', 'Créez une catégorie pour organiser vos transactions et suivre un budget.', 'Créer une catégorie', () => openCategoryDialog()));
+            grid.append(emptyState('No categories', 'Create a category to organize your transactions and track a budget.', 'Create a category', () => openCategoryDialog()));
         } else {
             state.categories.forEach((category) => {
                 const card = node('article', 'category-card');
                 const spent = expenses.get(Number(category.id)) || 0;
                 const progress = budgetProgress(category, spent);
                 const top = node('div', 'card-topline');
-                append(top, node('span', 'pill', `Ce mois : ${formatMoney(spent)}`));
-                if (progress?.over) top.append(node('span', 'pill is-danger', 'Budget dépassé'));
-                else if (progress && progress.percent >= 80) top.append(node('span', 'pill is-warning', 'Limite proche'));
+                append(top, node('span', 'pill', `This month: ${formatMoney(spent)}`));
+                if (progress?.over) top.append(node('span', 'pill is-danger', 'Budget exceeded'));
+                else if (progress && progress.percent >= 80) top.append(node('span', 'pill is-warning', 'Limit nearly reached'));
                 append(card, top, node('h2', 'card-title', category.name));
                 if (progress) {
                     card.append(makeBudgetItem(category, spent));
                 } else {
-                    card.append(node('p', 'budget-unlimited', 'Aucune limite mensuelle définie.'));
+                    card.append(node('p', 'budget-unlimited', 'No monthly limit set.'));
                 }
                 const actions = node('div', 'card-actions');
-                actions.append(makeButton('Modifier', 'button-secondary button-small', () => openCategoryDialog(category)));
-                actions.append(makeButton('Supprimer', 'button-danger button-small', () => removeCategory(category)));
+                actions.append(makeButton('Edit', 'button-secondary button-small', () => openCategoryDialog(category)));
+                actions.append(makeButton('Delete', 'button-danger button-small', () => removeCategory(category)));
                 card.append(actions);
                 grid.append(card);
             });
@@ -394,26 +394,26 @@
 
     function renderTransactions() {
         const content = node('div');
-        content.append(heading('Transactions', 'Retrouvez et filtrez les opérations du mois.', [monthInput(), makeButton('＋ Ajouter', 'button-primary', () => openTransactionDialog())]));
+        content.append(heading('Transactions', 'Browse and filter this month’s transactions.', [monthInput(), makeButton('＋ Add', 'button-primary', () => openTransactionDialog())]));
         const toolbar = node('div', 'toolbar');
         const accountSelect = node('select');
-        accountSelect.setAttribute('aria-label', 'Filtrer par compte');
-        addOption(accountSelect, '', 'Tous les comptes');
+        accountSelect.setAttribute('aria-label', 'Filter by account');
+        addOption(accountSelect, '', 'All accounts');
         state.accounts.forEach((account) => addOption(accountSelect, account.id, account.name));
         accountSelect.value = state.filters.account;
         accountSelect.addEventListener('change', () => { state.filters.account = accountSelect.value; renderTransactions(); });
 
         const categorySelect = node('select');
-        categorySelect.setAttribute('aria-label', 'Filtrer par catégorie');
-        addOption(categorySelect, '', 'Toutes les catégories');
+        categorySelect.setAttribute('aria-label', 'Filter by category');
+        addOption(categorySelect, '', 'All categories');
         state.categories.forEach((category) => addOption(categorySelect, category.id, category.name));
         categorySelect.value = state.filters.category;
         categorySelect.addEventListener('change', () => { state.filters.category = categorySelect.value; renderTransactions(); });
 
         const accountField = node('div', 'field filter-field');
-        append(accountField, node('label', '', 'Compte'), accountSelect);
+        append(accountField, node('label', '', 'Account'), accountSelect);
         const categoryField = node('div', 'field filter-field');
-        append(categoryField, node('label', '', 'Catégorie'), categorySelect);
+        append(categoryField, node('label', '', 'Category'), categorySelect);
         append(toolbar, accountField, categoryField);
         content.append(toolbar);
 
@@ -424,9 +424,9 @@
         });
         content.append(node('p', 'filters-summary', `${filtered.length} transaction${filtered.length > 1 ? 's' : ''} · ${monthLabel(state.month)}`));
         const list = node('section', 'panel list-panel');
-        list.setAttribute('aria-label', 'Liste des transactions');
+        list.setAttribute('aria-label', 'Transactions list');
         if (!filtered.length) {
-            list.append(emptyState(state.transactions.length ? 'Aucun résultat avec ces filtres' : 'Aucune transaction ce mois-ci', state.transactions.length ? 'Essayez un autre compte ou une autre catégorie.' : 'Créez votre première opération pour commencer le suivi.', state.transactions.length ? null : 'Créer une transaction', state.transactions.length ? null : () => openTransactionDialog()));
+            list.append(emptyState(state.transactions.length ? 'No results with these filters' : 'No transactions this month', state.transactions.length ? 'Try another account or category.' : 'Create your first transaction to start tracking.', state.transactions.length ? null : 'Create a transaction', state.transactions.length ? null : () => openTransactionDialog()));
         } else {
             filtered.forEach((transaction) => list.append(transactionRow(transaction, true)));
         }
@@ -436,14 +436,14 @@
 
     function renderSummary() {
         const content = node('div');
-        content.append(heading('Résumé mensuel', `Votre bilan financier pour ${monthLabel(state.month)}.`, [monthInput(), makeButton('＋ Nouvelle transaction', 'button-primary', () => openTransactionDialog())]));
+        content.append(heading('Monthly summary', `Your financial summary for ${monthLabel(state.month)}.`, [monthInput(), makeButton('＋ New transaction', 'button-primary', () => openTransactionDialog())]));
         const summary = state.summary || {};
         const stats = node('section', 'stats-grid');
         append(stats,
-            statCard('Revenus', formatMoney(summary.total_income), monthLabel(state.month), '↙', 'tone-positive'),
-            statCard('Dépenses', formatMoney(summary.total_expense), monthLabel(state.month), '↗', 'tone-negative'),
-            statCard('Solde net', formatMoney(summary.net_balance), 'Revenus moins dépenses', '＝', Number(summary.net_balance) < 0 ? 'tone-negative' : 'tone-positive'),
-            statCard('Opérations', String(state.transactions.length), 'Pour le mois sélectionné', '▤')
+            statCard('Income', formatMoney(summary.total_income), monthLabel(state.month), '↙', 'tone-positive'),
+            statCard('Expenses', formatMoney(summary.total_expense), monthLabel(state.month), '↗', 'tone-negative'),
+            statCard('Net balance', formatMoney(summary.net_balance), 'Income minus expenses', '＝', Number(summary.net_balance) < 0 ? 'tone-negative' : 'tone-positive'),
+            statCard('Transactions', String(state.transactions.length), 'For the selected month', '▤')
         );
         content.append(stats);
 
@@ -469,14 +469,14 @@
                 byCategory.append(row);
             });
         } else {
-            byCategory.append(emptyState('Aucune dépense enregistrée', 'Les dépenses apparaîtront ici dès qu’une transaction sera ajoutée.'));
+            byCategory.append(emptyState('No expenses recorded', 'Expenses will appear here once a transaction is added.'));
         }
-        grid.append(panel('Dépenses par catégorie', 'Comparaison des catégories pour ce mois', byCategory));
+        grid.append(panel('Expenses by category', 'Category comparison for this month', byCategory));
 
         const history = node('div', 'list-stack');
         if (state.transactions.length) state.transactions.forEach((transaction) => history.append(transactionRow(transaction, true)));
-        else history.append(emptyState('Mois sans activité', 'Choisissez un autre mois ou ajoutez une transaction.', 'Créer une transaction', () => openTransactionDialog()));
-        grid.append(panel('Historique du mois', monthLabel(state.month), history, makeButton('Voir les transactions', 'button-quiet', () => switchView('transactions'))));
+        else history.append(emptyState('Month without activity', 'Choose another month or add a transaction.', 'Create a transaction', () => openTransactionDialog()));
+        grid.append(panel('Month history', monthLabel(state.month), history, makeButton('View transactions', 'button-quiet', () => switchView('transactions'))));
         content.append(grid);
         main.replaceChildren(content);
     }
@@ -521,7 +521,7 @@
         let input;
         if (type === 'select') {
             input = node('select');
-            addOption(input, '', options.placeholder || 'Choisir…');
+            addOption(input, '', options.placeholder || 'Choose…');
             (options.choices || []).forEach((choice) => addOption(input, choice.value, choice.label));
             input.value = value === null || value === undefined ? '' : String(value);
         } else if (type === 'textarea') {
@@ -553,8 +553,8 @@
         const dialogTitle = node('h2', '', title);
         dialogTitle.id = 'dialog-title';
         append(copy, dialogTitle, node('p', '', subtitle));
-        const close = makeButton('×', 'button-secondary dialog-close', () => dialog.close(), 'Fermer la fenêtre');
-        close.setAttribute('aria-label', 'Fermer la fenêtre');
+        const close = makeButton('×', 'button-secondary dialog-close', () => dialog.close(), 'Close window');
+        close.setAttribute('aria-label', 'Close window');
         append(head, copy, close);
         const form = node('form', 'dialog-form');
         form.noValidate = false;
@@ -564,8 +564,8 @@
 
         fields(form);
         const actions = node('div', 'dialog-actions');
-        actions.append(makeButton('Annuler', 'button-secondary', () => dialog.close()));
-        const submit = node('button', 'button button-primary', 'Enregistrer');
+        actions.append(makeButton('Cancel', 'button-secondary', () => dialog.close()));
+        const submit = node('button', 'button button-primary', 'Save');
         submit.type = 'submit';
         actions.append(submit);
         append(form, formMessage, actions);
@@ -573,7 +573,7 @@
             event.preventDefault();
             formMessage.hidden = true;
             submit.disabled = true;
-            submit.textContent = 'Enregistrement…';
+            submit.textContent = 'Saving…';
             try {
                 await onSubmit(new FormData(form));
                 dialog.close();
@@ -581,7 +581,7 @@
                 formMessage.textContent = error.message;
                 formMessage.hidden = false;
                 submit.disabled = false;
-                submit.textContent = 'Enregistrer';
+                submit.textContent = 'Save';
             }
         });
         append(inner, head, form);
@@ -598,68 +598,68 @@
 
     function openAccountDialog(account) {
         const editing = Boolean(account);
-        openDialog(editing ? 'Modifier le compte' : 'Nouveau compte', editing ? 'Mettez à jour les informations du compte.' : 'Ajoutez un compte que vous souhaitez suivre.', (form) => {
-            addField(form, 'Nom du compte', 'name', 'text', account?.name || '', { required: true, maxLength: 100, autocomplete: 'off' });
-            addField(form, 'Type de compte', 'type', 'select', account?.type || 'checking', { required: true, choices: [
-                { value: 'checking', label: 'Compte courant' },
-                { value: 'savings', label: 'Épargne' },
-                { value: 'cash', label: 'Espèces' }
+        openDialog(editing ? 'Edit account' : 'New account', editing ? 'Update the account details.' : 'Add an account you want to track.', (form) => {
+            addField(form, 'Account name', 'name', 'text', account?.name || '', { required: true, maxLength: 100, autocomplete: 'off' });
+            addField(form, 'Account type', 'type', 'select', account?.type || 'checking', { required: true, choices: [
+                { value: 'checking', label: 'Checking account' },
+                { value: 'savings', label: 'Savings' },
+                { value: 'cash', label: 'Cash' }
             ] });
-            addField(form, editing ? 'Solde actuel' : 'Solde initial', 'balance', 'number', account?.balance ?? '0.00', { required: true, min: 0, step: '0.01' });
+            addField(form, editing ? 'Current balance' : 'Initial balance', 'balance', 'number', account?.balance ?? '0.00', { required: true, min: 0, step: '0.01' });
         }, async (data) => {
             const payload = { name: String(data.get('name')).trim(), type: data.get('type'), balance: Number(data.get('balance')) };
-            if (!payload.name || !Number.isFinite(payload.balance) || payload.balance < 0) throw new Error('Indique un nom et un solde positif ou nul.');
-            await saveAndRefresh(editing ? 'Compte modifié.' : 'Compte créé.', () => editing ? api.updateAccount(account.id, payload) : api.createAccount(payload));
+            if (!payload.name || !Number.isFinite(payload.balance) || payload.balance < 0) throw new Error('Enter a name and a balance of zero or more.');
+            await saveAndRefresh(editing ? 'Account updated.' : 'Account created.', () => editing ? api.updateAccount(account.id, payload) : api.createAccount(payload));
         });
     }
 
     function openCategoryDialog(category) {
         const editing = Boolean(category);
-        openDialog(editing ? 'Modifier la catégorie' : 'Nouvelle catégorie', editing ? 'Ajustez son nom ou sa limite mensuelle.' : 'Créez une catégorie pour classer vos dépenses.', (form) => {
-            addField(form, 'Nom de la catégorie', 'name', 'text', category?.name || '', { required: true, maxLength: 100, autocomplete: 'off' });
-            addField(form, 'Limite mensuelle (Ar)', 'monthly_limit', 'number', category?.monthly_limit ?? '', {
+        openDialog(editing ? 'Edit category' : 'New category', editing ? 'Adjust its name or monthly limit.' : 'Create a category to classify your expenses.', (form) => {
+            addField(form, 'Category name', 'name', 'text', category?.name || '', { required: true, maxLength: 100, autocomplete: 'off' });
+            addField(form, 'Monthly limit (Ar)', 'monthly_limit', 'number', category?.monthly_limit ?? '', {
                 min: 0,
                 step: '0.01',
-                help: editing ? 'Laissez vide pour conserver la limite actuelle. Le backend ne permet pas encore de supprimer une limite existante.' : 'Laissez vide si cette catégorie n’a pas de limite.'
+                help: editing ? 'Leave empty to keep the current limit. The backend does not yet allow removing an existing limit.' : 'Leave empty if this category has no limit.'
             });
         }, async (data) => {
             const name = String(data.get('name')).trim();
             const rawLimit = String(data.get('monthly_limit') || '').trim();
-            if (!name) throw new Error('Le nom de la catégorie est obligatoire.');
+            if (!name) throw new Error('The category name is required.');
             const payload = { name };
             if (!editing || rawLimit !== '') payload.monthly_limit = rawLimit === '' ? null : Number(rawLimit);
             if (payload.monthly_limit !== undefined && payload.monthly_limit !== null && (!Number.isFinite(payload.monthly_limit) || payload.monthly_limit < 0)) {
-                throw new Error('La limite doit être un nombre positif ou nul.');
+                throw new Error('The limit must be zero or a positive number.');
             }
-            await saveAndRefresh(editing ? 'Catégorie modifiée.' : 'Catégorie créée.', () => editing ? api.updateCategory(category.id, payload) : api.createCategory(payload));
+            await saveAndRefresh(editing ? 'Category updated.' : 'Category created.', () => editing ? api.updateCategory(category.id, payload) : api.createCategory(payload));
         });
     }
 
     function openTransactionDialog(transaction) {
         if (!state.accounts.length) {
-            showToast('Crée d’abord un compte avant d’ajouter une transaction.', 'warning');
+            showToast('Create an account first before adding a transaction.', 'warning');
             switchView('accounts');
             return;
         }
         if (!state.categories.length) {
-            showToast('Crée d’abord une catégorie pour classer la transaction.', 'warning');
+            showToast('Create a category first to classify the transaction.', 'warning');
             switchView('categories');
             return;
         }
         const editing = Boolean(transaction);
-        openDialog(editing ? 'Modifier la transaction' : 'Nouvelle transaction', 'Les champs marqués sont nécessaires pour enregistrer l’opération.', (form) => {
+        openDialog(editing ? 'Edit transaction' : 'New transaction', 'Required fields must be filled in to save the transaction.', (form) => {
             addField(form, 'Type', 'type', 'select', transaction?.type || 'expense', { required: true, choices: [
-                { value: 'expense', label: 'Dépense' },
-                { value: 'income', label: 'Revenu' }
+                { value: 'expense', label: 'Expense' },
+                { value: 'income', label: 'Income' }
             ] });
-            addField(form, 'Compte', 'account_id', 'select', transaction?.account_id || '', { required: true, choices: state.accounts.map((account) => ({ value: account.id, label: `${account.name} · ${formatMoney(account.balance)}` })) });
-            addField(form, 'Catégorie', 'category_id', 'select', transaction?.category_id || '', { required: true, choices: state.categories.map((category) => ({ value: category.id, label: category.name })) });
-            addField(form, 'Montant (Ar)', 'amount', 'number', transaction?.amount ?? '', { required: true, min: '0.01', step: '0.01' });
+            addField(form, 'Account', 'account_id', 'select', transaction?.account_id || '', { required: true, choices: state.accounts.map((account) => ({ value: account.id, label: `${account.name} · ${formatMoney(account.balance)}` })) });
+            addField(form, 'Category', 'category_id', 'select', transaction?.category_id || '', { required: true, choices: state.categories.map((category) => ({ value: category.id, label: category.name })) });
+            addField(form, 'Amount (Ar)', 'amount', 'number', transaction?.amount ?? '', { required: true, min: '0.01', step: '0.01' });
             addField(form, 'Date', 'transaction_date', 'date', transaction?.transaction_date || new Date().toISOString().slice(0, 10), { required: true });
-            addField(form, 'Note (facultative)', 'note', 'textarea', transaction?.note || '', { maxLength: 255 });
+            addField(form, 'Note (optional)', 'note', 'textarea', transaction?.note || '', { maxLength: 255 });
         }, async (data) => {
             const amount = Number(data.get('amount'));
-            if (!Number.isFinite(amount) || amount <= 0) throw new Error('Le montant doit être supérieur à zéro.');
+            if (!Number.isFinite(amount) || amount <= 0) throw new Error('The amount must be greater than zero.');
             const payload = {
                 account_id: Number(data.get('account_id')),
                 category_id: Number(data.get('category_id')),
@@ -669,41 +669,41 @@
                 note: String(data.get('note') || '').trim() || null
             };
             let response;
-            await saveAndRefresh(editing ? 'Transaction modifiée.' : 'Transaction enregistrée.', async () => {
+            await saveAndRefresh(editing ? 'Transaction updated.' : 'Transaction saved.', async () => {
                 response = editing ? await api.updateTransaction(transaction.id, payload) : await api.createTransaction(payload);
                 return response;
             }, (result) => {
                 if (result?.warning) showBudgetWarning(result.warning);
-                else showToast(editing ? 'Transaction modifiée.' : 'Transaction enregistrée.', 'success');
+                else showToast(editing ? 'Transaction updated.' : 'Transaction saved.', 'success');
             });
         });
     }
 
     async function removeAccount(account) {
-        if (!window.confirm(`Supprimer le compte « ${account.name} » ?`)) return;
+        if (!window.confirm(`Delete account “${account.name}”?`)) return;
         try {
             await api.deleteAccount(account.id);
-            await reloadAndRender('Compte supprimé.');
+            await reloadAndRender('Account deleted.');
         } catch (error) {
             showToast(error.message, 'error');
         }
     }
 
     async function removeCategory(category) {
-        if (!window.confirm(`Supprimer la catégorie « ${category.name} » ?`)) return;
+        if (!window.confirm(`Delete category “${category.name}”?`)) return;
         try {
             await api.deleteCategory(category.id);
-            await reloadAndRender('Catégorie supprimée.');
+            await reloadAndRender('Category deleted.');
         } catch (error) {
             showToast(error.message, 'error');
         }
     }
 
     async function removeTransaction(transaction) {
-        if (!window.confirm('Supprimer cette transaction ? Le solde du compte sera recalculé par le backend.')) return;
+        if (!window.confirm('Delete this transaction? The account balance will be recalculated by the backend.')) return;
         try {
             await api.deleteTransaction(transaction.id);
-            await reloadAndRender('Transaction supprimée.');
+            await reloadAndRender('Transaction deleted.');
         } catch (error) {
             showToast(error.message, 'error');
         }

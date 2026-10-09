@@ -1,5 +1,5 @@
-// Frontend et API partagent le même domaine WAMP : ce chemin relatif mène de
-// /frontend/ vers /public/. Adapte-le si tu changes l'organisation des dossiers.
+// Frontend and API share the same WAMP domain: this relative path leads from
+// /frontend/ to /public/. Adjust it if you change the folder layout.
 window.FinanceConfig = Object.freeze({
     apiBaseUrl: '../public',
     currencyLabel: 'Ar',
