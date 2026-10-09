@@ -13,7 +13,7 @@ use App\Repositories\Account\AccountWriteRepository;
 use App\Repositories\Account\AccountReadRepository;
 
 // Importer la classe jsonResponse pour gérer les réponses JSON
-use App\Controllers\jsonResponse;
+use App\Controllers\JsonResponse;
 
 // Importer la classe PDO pour interagir avec la base de données
 use PDO;
@@ -94,8 +94,8 @@ class AccountController
             JsonResponse::send([
                 'success' => false,
                 'error' => $e->getMessage(),
-                422
-            ]);
+                
+            ],422);
         }
     }
 
