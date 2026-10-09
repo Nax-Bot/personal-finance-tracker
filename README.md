@@ -1,189 +1,262 @@
 # Personal Finance Tracker
 
-Application de suivi des finances personnelles avec une interface web statique, une API PHP et une base MariaDB.
+A personal finance tracking application with a static web interface, a PHP API, and a MariaDB database.
 
-> Projet préparé avec WAMP64 sous Windows. Les commandes ci-dessous sont à exécuter dans l’invite de commandes, à la racine du projet (le dossier qui contient composer.json).
+> This project is prepared for WAMP64 on Windows. Run the commands below in the Command Prompt from the project root directory (the folder that contains `composer.json`).
 
-## Fonctionnalités
+## Features
 
-- Créer, consulter, modifier et supprimer des comptes et des catégories.
-- Enregistrer des revenus et des dépenses, avec un compte et une catégorie.
-- Mettre à jour le solde du compte après une création, modification ou suppression de transaction.
-- Consulter les transactions d’un mois et un résumé mensuel.
-- Afficher ces données dans l’interface web.
+- Create, view, update, and delete accounts and categories.
+- Record income and expenses and link them to an account and a category.
+- Update the account balance when a transaction is created, updated, or deleted.
+- View transactions for a specific month and display a monthly summary.
+- Display financial data in the web interface.
 
-Le dépassement d’une limite mensuelle est signalé, mais ne bloque pas la transaction. Le projet ne comporte pas d’authentification multi-utilisateur : n’y stockez pas de vraies données financières sur un serveur public.
+If a monthly limit is exceeded, the application shows a warning but does not block the transaction.
+
+The application does not support multiple users or user authentication. Do not store real financial data on a public server.
 
 ## Technologies
 
-- PHP 8.3, PDO et MariaDB/MySQL
-- Composer et vlucas/phpdotenv
+- PHP 8.3, PDO, and MariaDB/MySQL
+- Composer and `vlucas/phpdotenv`
 - PHPUnit 12.5
-- HTML, CSS et JavaScript, sans étape de compilation du frontend
+- HTML, CSS, and JavaScript, with no frontend build step
 
-## Architecture
+## Project Structure
 
-    frontend/                  Interface web statique (HTML, CSS, JavaScript)
-    public/                     Point d’entrée PHP de l’API et règles Apache
-    routes/api.php              Déclaration des routes HTTP
-    src/Controllers/            Traitement des requêtes et réponses JSON
-    src/Commands/               Opérations d’écriture et règles métier
-    src/Queries/                Lectures et résumés
-    src/Repositories/            Accès à MariaDB avec PDO
-    src/Database/               Connexion PDO
-    tests/Unit/                 Tests unitaires sans MariaDB
-    tests/Integration/          Tests MariaDB et HTTP
-    tests/fixtures/             Schéma de test et routeur HTTP de test
-    database/schema.sql         Schéma de la base normale (à ajouter avant publication)
+```text
+frontend/                  Static web interface (HTML, CSS, JavaScript)
+public/                    PHP API entry point and Apache rules
+routes/api.php             HTTP route definitions
+src/Controllers/           Request handling and JSON responses
+src/Commands/              Write operations and business rules
+src/Queries/               Data reading and summaries
+src/Repositories/           MariaDB access using PDO
+src/Database/               PDO database connection
+tests/Unit/                Unit tests without MariaDB
+tests/Integration/         MariaDB and HTTP integration tests
+tests/fixtures/             Test database schema and HTTP test router
+database/schema.sql        Main database schema (must be added before release)
+```
 
-Le frontend et l’API doivent être servis sur le même domaine. Le frontend appelle l’API avec le chemin ../public défini dans frontend/assets/js/config.js.
+The frontend and API must be served from the same domain.
 
-## Installation locale avec WAMP64
+The frontend uses the API path configured in `frontend/assets/js/config.js`, pointing to `../public`.
 
-### Prérequis
+## Install the Project with WAMP64
 
-- WAMP64 avec Apache et MariaDB démarrés.
-- PHP 8.3 et Composer accessibles dans l’invite de commandes.
-- Extensions PHP pdo_mysql et mbstring activées.
+### Requirements
 
-Vérifiez PHP et Composer :
+Make sure you have:
 
-    php -v
-    composer --version
+- WAMP64 installed, with Apache and MariaDB running.
+- PHP 8.3 and Composer available in the Command Prompt.
+- The PHP extensions `pdo_mysql` and `mbstring` enabled.
 
-### Installer le code
+Check your PHP and Composer versions:
 
-1. Placez le dossier du projet dans C:\wamp64\www\.
-2. Ouvrez l’invite de commandes dans ce dossier.
-3. Installez les dépendances :
+```bash
+php -v
+composer --version
+```
 
-    composer install
+### Install the Project Files
 
-Composer crée le dossier vendor/. Il ne faut pas publier ce dossier.
+1. Copy the project folder into `C:\wamp64\www\`.
+2. Open the Command Prompt in the project folder.
+3. Install the project dependencies:
 
-### Créer et configurer la base de l’application
+```bash
+composer install
+```
 
-1. Dans phpMyAdmin, créez une base appelée finance_tracker.
-2. Le dépôt doit fournir le fichier database/schema.sql contenant les instructions CREATE TABLE, sans données personnelles.
-3. Dans phpMyAdmin, sélectionnez finance_tracker, ouvrez Importer, choisissez database/schema.sql et lancez l’importation.
+Composer creates the `vendor/` folder. Do not publish this folder to GitHub.
 
-Si database/schema.sql n’est pas présent dans le projet reçu, demandez le schéma d’installation avant de continuer. Le fichier tests/fixtures/schema.test.sql est réservé à la base de test : ne l’importez pas dans la base normale.
+### Create and Configure the Main Database
 
-Copiez le modèle de configuration :
+1. Open phpMyAdmin and create a database named `finance_tracker`.
+2. Make sure the project contains `database/schema.sql`. This file must contain the `CREATE TABLE` statements needed to create the database tables, without any personal data.
+3. In phpMyAdmin, select the `finance_tracker` database, click **Import**, select `database/schema.sql`, and start the import.
 
-    copy .env.example .env
+If `database/schema.sql` is missing from the project, ask for the installation schema before continuing.
 
-Ouvrez .env à la racine du projet et adaptez les paramètres à votre MariaDB :
+The file `tests/fixtures/schema.test.sql` is only for the test database. Do not import it into the main database.
 
-    DB_HOST=localhost
-    DB_PORT=3306
-    DB_DATABASE=finance_tracker
-    DB_USERNAME=root
-    DB_PASSWORD=
+Copy the example configuration file:
 
-Le port WAMP est souvent 3306. Utilisez les identifiants configurés sur votre installation. Le fichier .env contient la configuration privée et ne doit pas être publié.
+```bash
+copy .env.example .env
+```
 
-### Ouvrir l’application
+Open the `.env` file in the project root directory and update the database settings for your MariaDB installation:
 
-Vérifiez que WAMP est démarré et que son icône est verte. Ouvrez ensuite :
+```dotenv
+DB_HOST=localhost
+DB_PORT=3306
+DB_DATABASE=finance_tracker
+DB_USERNAME=root
+DB_PASSWORD=
+```
 
-    http://localhost/NOM_DU_DOSSIER/frontend/
+The default WAMP port is often `3306`. Use the username and password configured on your computer.
 
-Remplacez NOM_DU_DOSSIER par le nom du dossier placé dans C:\wamp64\www. Par exemple :
+The `.env` file contains private configuration settings. Never publish it to GitHub.
 
-    http://localhost/personal_finance_tracker/frontend/
+### Open the Application
 
-Pour vérifier l’API, vous pouvez ouvrir :
+Make sure WAMP64 is running and its icon is green.
 
-    http://localhost/NOM_DU_DOSSIER/public/accounts
+Open the following URL in your browser:
 
-## Routes HTTP disponibles
+```text
+http://localhost/PROJECT_FOLDER_NAME/frontend/
+```
 
-Les chemins suivants sont relatifs au dossier public :
+Replace `PROJECT_FOLDER_NAME` with the name of your project folder inside `C:\wamp64\www\`.
 
-| Méthode | Chemin | Fonction |
+For example:
+
+```text
+http://localhost/personal_finance_tracker/frontend/
+```
+
+To check the API, open:
+
+```text
+http://localhost/PROJECT_FOLDER_NAME/public/accounts
+```
+
+Replace `PROJECT_FOLDER_NAME` with your actual project folder name.
+
+## Available HTTP Routes
+
+The following paths are relative to the `public` directory.
+
+| Method | Path | Description |
 |---|---|---|
-| GET | /accounts | Lister les comptes |
-| POST | /accounts | Créer un compte |
-| GET | /accounts/{id} | Consulter un compte |
-| PATCH | /accounts/{id} | Modifier un compte |
-| DELETE | /accounts/{id} | Supprimer un compte |
-| GET | /categories | Lister les catégories |
-| POST | /categories | Créer une catégorie |
-| GET | /categories/{id} | Consulter une catégorie |
-| PATCH | /categories/{id} | Modifier une catégorie |
-| DELETE | /categories/{id} | Supprimer une catégorie |
-| GET | /transaction | Lister les transactions |
-| POST | /transaction | Créer une transaction |
-| GET | /transaction/{id} | Consulter une transaction |
-| PATCH | /transaction/{id} | Modifier une transaction |
-| DELETE | /transaction/{id} | Supprimer une transaction |
-| GET | /transaction/month/YYYY-MM | Transactions d’un mois |
-| GET | /account/{id}/transactions | Transactions d’un compte |
-| GET | /summary?month=YYYY-MM | Résumé mensuel |
+| GET | `/accounts` | Get all accounts |
+| POST | `/accounts` | Create an account |
+| GET | `/accounts/{id}` | Get an account by ID |
+| PATCH | `/accounts/{id}` | Update an account |
+| DELETE | `/accounts/{id}` | Delete an account |
+| GET | `/categories` | Get all categories |
+| POST | `/categories` | Create a category |
+| GET | `/categories/{id}` | Get a category by ID |
+| PATCH | `/categories/{id}` | Update a category |
+| DELETE | `/categories/{id}` | Delete a category |
+| GET | `/transaction` | Get all transactions |
+| POST | `/transaction` | Create a transaction |
+| GET | `/transaction/{id}` | Get a transaction by ID |
+| PATCH | `/transaction/{id}` | Update a transaction |
+| DELETE | `/transaction/{id}` | Delete a transaction |
+| GET | `/transaction/month/YYYY-MM` | Get transactions for a specific month |
+| GET | `/account/{id}/transactions` | Get transactions for an account |
+| GET | `/summary?month=YYYY-MM` | Get the monthly summary |
 
-## Lancer les tests unitaires
+## Run Unit Tests
 
-Depuis le dossier principal du projet :
+Open the Command Prompt in the project root directory and run:
 
-    composer test
+```bash
+composer test
+```
 
-Ces tests vérifient les règles métier des comptes, catégories et transactions. Ils n’ont besoin ni de MariaDB ni du serveur HTTP.
+These tests check the business rules for accounts, categories, and transactions.
 
-## Lancer les tests MariaDB et HTTP
+Unit tests do not require MariaDB or an HTTP server.
 
-Les tests d’intégration utilisent une base séparée nommée finance_tracker_test. Ils ne doivent jamais utiliser finance_tracker, car ils créent et nettoient des données de test.
+## Run MariaDB and HTTP Integration Tests
 
-1. Dans phpMyAdmin, créez la base vide finance_tracker_test.
-2. Sélectionnez-la, ouvrez Importer, puis importez tests/fixtures/schema.test.sql.
-3. À la racine du projet, créez votre configuration de test :
+Integration tests use a separate database named `finance_tracker_test`.
 
-    copy .env.testing.example .env.testing
+**Never use the main `finance_tracker` database for integration tests.** These tests create and delete test data.
 
-4. Ouvrez .env.testing et vérifiez les paramètres. Adaptez l’utilisateur et le mot de passe à votre WAMP :
+### Step 1: Create the Test Database
 
-    DB_HOST=127.0.0.1
-    DB_PORT=3306
-    DB_DATABASE=finance_tracker_test
-    DB_USERNAME=root
-    DB_PASSWORD=
-    TEST_BASE_URL=http://127.0.0.1:8000/personal_finance_tracker/public
+1. Open phpMyAdmin.
+2. Create an empty database named `finance_tracker_test`.
+3. Select the database, click **Import**, and import `tests/fixtures/schema.test.sql`.
 
-Ne publiez jamais .env.testing. Pour les commandes suivantes, gardez la valeur TEST_BASE_URL indiquée.
+### Step 2: Create the Test Configuration
 
-5. Ouvrez une première invite de commandes à la racine du projet et démarrez le serveur HTTP de test :
+In the project root directory, run:
 
-    php -S 127.0.0.1:8000 tests/fixtures/http-router.php
+```bash
+copy .env.testing.example .env.testing
+```
 
-Laissez cette fenêtre ouverte. Ce serveur PHP de test est distinct d’Apache WAMP.
+Open `.env.testing` and check the settings. Update the username and password if necessary:
 
-6. Ouvrez une deuxième invite de commandes au même endroit et lancez :
+```dotenv
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=finance_tracker_test
+DB_USERNAME=root
+DB_PASSWORD=
+TEST_BASE_URL=http://127.0.0.1:8000/personal_finance_tracker/public
+```
 
-    composer test:integration
+Never publish `.env.testing` to GitHub.
 
-Ces tests vérifient l’accès à MariaDB et envoient de vraies requêtes HTTP à l’API. Si la configuration, MariaDB ou le serveur HTTP manque, les tests d’intégration peuvent être ignorés. Les tests unitaires restent exécutables avec composer test.
+Keep the `TEST_BASE_URL` value shown above when running the following commands.
 
-## Publier le projet sur GitHub
+### Step 3: Start the Test HTTP Server
 
-Publiez le code, les tests, composer.json, composer.lock, les fichiers de configuration d’exemple, les instructions et les scripts SQL sans données personnelles.
+Open a first Command Prompt window in the project root directory and run:
 
-Le dépôt doit contenir un fichier .gitignore avec au minimum :
+```bash
+php -S 127.0.0.1:8000 tests/fixtures/http-router.php
+```
 
-    .env
-    .env.testing
-    /vendor/
+Leave this window open.
 
-N’ajoutez pas .env ou .env.testing à GitHub : ils contiennent les paramètres propres à votre ordinateur. Les fichiers .env.example et .env.testing.example sont des modèles publics ; ils ne doivent contenir aucun mot de passe privé. N’envoyez pas de sauvegarde SQL avec de vraies données.
+This is a separate PHP development server. It is not the Apache server provided by WAMP64.
 
-## Choix d’architecture et limites
+### Step 4: Run the Integration Tests
 
-- Les opérations de lecture (Queries) et d’écriture (Commands) sont séparées. C’est une séparation inspirée de CQRS, simplifiée pour ce projet.
-- Les tests unitaires sont isolés. Les tests d’intégration ont besoin d’une base et d’un serveur HTTP.
-- Le frontend et l’API doivent être servis sur le même domaine ; CORS n’est pas configuré.
-- L’application ne gère pas plusieurs utilisateurs et ne doit pas encore être utilisée pour des finances réelles.
-- Une prochaine étape serait de renforcer la sécurité, d’ajouter une authentification et de vérifier le déploiement sur un hébergeur PHP/MariaDB.
+Open a second Command Prompt window in the same project directory and run:
 
-## Auteur
+```bash
+composer test:integration
+```
 
-Projet réalisé dans le cadre d’une évaluation et d’un apprentissage du développement d’une application de gestion des finances personnelles.
+These tests check the connection to MariaDB and send real HTTP requests to the API.
 
+If the database configuration, MariaDB, or the HTTP server is unavailable, some integration tests may be skipped.
+
+You can still run the unit tests at any time with:
+
+```bash
+composer test
+```
+
+## Publish the Project on GitHub
+
+You can publish the source code, tests, `composer.json`, `composer.lock`, example configuration files, documentation, and SQL scripts that contain no personal data.
+
+Make sure your `.gitignore` file contains at least:
+
+```gitignore
+.env
+.env.testing
+/vendor/
+```
+
+Do not upload `.env` or `.env.testing` to GitHub because these files contain settings specific to your computer.
+
+The `.env.example` and `.env.testing.example` files are public templates. They must not contain private passwords.
+
+Do not upload SQL backups containing real personal or financial data.
+
+## Architecture and Limitations
+
+- Read operations (`Queries`) and write operations (`Commands`) are separated. This is a simplified approach inspired by CQRS (Command Query Responsibility Segregation).
+- Unit tests run independently. Integration tests require a database and an HTTP server.
+- The frontend and API must be served from the same domain. CORS is not configured.
+- The application does not support multiple users and is not yet suitable for managing real personal finances.
+- Future improvements could include stronger security, user authentication, and deployment testing on a PHP/MariaDB hosting provider.
+
+## Author
+
+This project was created as part of a software development assessment and a learning exercise focused on building a personal finance management application.
